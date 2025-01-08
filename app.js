@@ -1,5 +1,4 @@
 import express from "express";
-import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import fileUpload from "express-fileupload";
@@ -8,9 +7,10 @@ import applicationRouter from "./routes/applicationRouter.js";
 import jobRouter from "./routes/jobRouter.js";
 import { dbConnection } from "./database/dbConnection.js";
 import { errorMiddleware } from "./middlewares/error.js";
+import { config } from "dotenv";
 const app = express();
 
-dotenv.config({ path: "./config/config.env" });
+config({ path: "./config/config.env" });
 app.use(
   cors({
     origin: [process.env.FRONTEND_URL],
@@ -25,9 +25,9 @@ app.use(fileUpload({
     useTempFiles: true,
     tempFileDir: "/tmp/",
 }));
-app.use("api/v1/users",userRouter);
-app.use("api/v1/application",applicationRouter);
-app.use("api/v1/job",jobRouter);
+app.use("/api/v1/users",userRouter);
+app.use("/api/v1/application",applicationRouter);
+app.use("/api/v1/job",jobRouter);
 dbConnection();
 app.use(errorMiddleware)
 
