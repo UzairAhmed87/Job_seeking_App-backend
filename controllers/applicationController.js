@@ -77,13 +77,18 @@ export const postApplication = catchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler("Resume file is required",400))
   }
   const {resume} = req.files;
-  const allowedFormats = ["img/png","img/jpg","img/webp"]
-  if(!allowedFormats.includes(resume.mimeType)){
-    return next/(new ErrorHandler("Invalid file type.File should be jpg,png or webp format",400))
+  const allowedFormats = ["image/png","image/jpg","image/webp"]
+  if(!allowedFormats.includes(resume.mimetype)){
+    console.log("Uploaded file MIME type:",resume.mimetype);
+    console.log(allowedFormats);
+    
+    return next(new ErrorHandler("Invalid file type.File should be jpg,png or webp format",400))
   }
-  const cloudinaryResponse = await cloudinary.UploadStream.upload(
+  const cloudinaryResponse = await cloudinary.uploader.upload(
     resume.tempFilePath
   );
+  console.log("Cloudinary Response: ",cloudinaryResponse);
+  
   if(!cloudinaryResponse || cloudinaryResponse.error)
   {
     console.error("Cloudinary Error",cloudinaryResponse.error|| "Unknown Cloudinary Error");
@@ -109,7 +114,7 @@ export const postApplication = catchAsyncError(async (req, res, next) => {
   {
     return next(new ErrorHandler("Please fill all fields",400))
   }
-  const application = Application.create({
+  const application = await Application.create({
     name,email,coverLetter,phone,address,applicantID,employerID,resume : {
       public_id : cloudinaryResponse.public_id,
       url: cloudinaryResponse.secure_url 

@@ -35,19 +35,19 @@ export const postJob = catchAsyncError(async (req, res, next) => {
     !country ||
     !city ||
     !location ||
-    !fixedSalary ||
-    !salaryFrom ||
-    !salaryTo
+    (!fixedSalary &&
+    (!salaryFrom &&
+    !salaryTo))
   ) {
-    return new ErrorHandler("Please provide all the details", 400);
+    return next (new ErrorHandler("Please provide all the details", 400));
   }
-  if ((!salaryFrom && !salaryTo) || fixedSalary) {
-    return new ErrorHandler(
+  if ((!salaryFrom && !salaryTo) && !fixedSalary) {
+    return next(new ErrorHandler(
       "Please either provide fixed salary or ranged salary"
-    );
+    )) 
   }
   if (salaryFrom && salaryTo && fixedSalary) {
-    return new ErrorHandler("Can not provide fixed and ranged salary together");
+    return next (new ErrorHandler("Can not provide fixed and ranged salary together"));
   }
   const postedBy = req.user._id;
   const job = await Job.create({
